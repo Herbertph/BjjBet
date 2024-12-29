@@ -9,7 +9,7 @@ router.post('/', async (req, res) => {
     try {
         const result = await pool.query("INSERT INTO events (name, date, location) VALUES ($1, $2, $3) RETURNING *",
         [name, date, location]);
-        res.json(newEvent.rows[0]);
+        res.json(result.rows[0]);
     } catch (err) {
         res.status(500).json({error: err.message});
     }
@@ -68,6 +68,29 @@ router.delete('/:id', async (req, res) => {
             return res.status(404).json({error: "Event not found"});
         }
         res.status(200).json({message: "Event deleted"});
+    } catch (err) {
+        res.status(500).json({error: err.message});
+    }
+});
+
+router.get("/:id/with-fights", async (req, res) => {
+    const {id} = req.params;
+
+    try {
+        const eventResult = await pool.query("SELECT * FROM events WHERE id = $1", [id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({error: "Event not found"});
+        }
+
+        const event = eventResult.rows[0];
+
+        //Obtain all fights associated to the event
+        const fightsResult = await pool.query("SELECT * FROM fights WHERE event_id = $1", [id]);
+     const fights = fightsResult.rows;
+
+     //combine data from event and fights
+     res.status(200).json({...event, fights});
+
     } catch (err) {
         res.status(500).json({error: err.message});
     }
