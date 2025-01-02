@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../db/config');
 const router = express.Router();
+const authenticateToken = require('../middlewares/authenticateToken');
 
 // Registration
 router.post('/register', async (req, res) => {
@@ -61,5 +62,22 @@ router.post('/login', async (req, res) => {
         res.status(500).json('Server Error');
     }
 });
+
+//Test middlewares
+// Rota protegida
+router.get('/profile', authenticateToken, (req, res) => {
+    res.json({
+        message: `Hello, ${req.user.username}! This is your profile.`,
+        user: req.user, // Dados do usuário decodificados do token
+    });
+});
+
+// Outra rota protegida
+router.get('/protected', authenticateToken, (req, res) => {
+    res.json({
+        message: 'This is a protected route. You have access!',
+    });
+});
+
 
 module.exports = router;
