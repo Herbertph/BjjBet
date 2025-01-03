@@ -1,0 +1,36 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .main {
+    flex: 1;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .signupContainer {
+    margin: 20px 0;
+  }
+  
+  .signupButton {
+    background-color: #f04;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .eventContainer {
+    margin: 20px 0;
+  }
+  
+  .emptyContainer {
+    margin: 20px 0;
+    border: 1px dashed gray;
+    height: 100px;
+  }
+  
