@@ -40,33 +40,38 @@ const MainPage = () => {
       <Header />
       <main className={styles.main}>
         <div className={styles.signupContainer}>
-          <button className={styles.signupButton}>Cadastre-se</button>
+          <button className={styles.signupButton}>Sign Up</button>
         </div>
         <div className={styles.carouselContainer}>
-          <h2>Próximos Eventos</h2>
+          <h2>Next Events</h2>
           {loading ? (
             <p>Carregando...</p>
           ) : (
             <div className={styles.carousel}>
               {events.map((event, index) => {
                 const offset = (index - currentIndex + events.length) % events.length;
+                const positionClass =
+                  offset === 0
+                    ? styles.centerSlide
+                    : offset === 1
+                    ? styles.rightSlide
+                    : offset === events.length - 1
+                    ? styles.leftSlide
+                    : styles.hiddenSlide;
                 return (
-                  <div
-                    key={event.id}
-                    className={`${styles.slide} ${
-                      offset === 0
-                        ? styles.activeSlide
-                        : offset === 1 || offset === events.length - 1
-                        ? styles.nearbySlide
-                        : styles.hiddenSlide
-                    }`}
-                  >
+                  <div key={event.id} className={`${styles.slide} ${positionClass}`}>
                     <img
                       src={event.image_url}
                       alt={event.name}
                       className={styles.eventImage}
                     />
-                   
+                   {/*} {offset === 0 && (
+                      <div className={styles.eventDetails}>
+                        <p><strong>Nome:</strong> {event.name}</p>
+                        <p><strong>Data:</strong> {new Date(event.date).toLocaleDateString()}</p>
+                        <p><strong>Local:</strong> {event.location}</p>
+                      </div>
+                    )}*/}
                   </div>
                 );
               })}
