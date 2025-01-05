@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Importando useNavigate
 import Header from "../components/header";
 import Footer from "../components/footer";
 import styles from "./MainPage.module.css";
@@ -7,6 +8,7 @@ const MainPage = () => {
   const [events, setEvents] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // Hook para navegação
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -40,7 +42,13 @@ const MainPage = () => {
       <Header />
       <main className={styles.main}>
         <div className={styles.signupContainer}>
-          <button className={styles.signupButton}>Sign Up</button>
+          {/* Adicionando funcionalidade ao botão Sign Up */}
+          <button
+            className={styles.signupButton}
+            onClick={() => navigate("/signup")} // Redireciona para a página de cadastro
+          >
+            Sign Up
+          </button>
         </div>
         <div className={styles.carouselContainer}>
           <h2>Next Events</h2>
@@ -65,13 +73,14 @@ const MainPage = () => {
                       alt={event.name}
                       className={styles.eventImage}
                     />
-                   {/*} {offset === 0 && (
+                    {/* Uncomment if event details are needed */}
+                    {/* offset === 0 && (
                       <div className={styles.eventDetails}>
                         <p><strong>Nome:</strong> {event.name}</p>
                         <p><strong>Data:</strong> {new Date(event.date).toLocaleDateString()}</p>
                         <p><strong>Local:</strong> {event.location}</p>
                       </div>
-                    )}*/}
+                    ) */}
                   </div>
                 );
               })}
