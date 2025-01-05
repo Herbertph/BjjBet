@@ -7,23 +7,23 @@ const authenticateToken = require('../middlewares/authenticateToken');
 
 // Registration
 router.post('/register', async (req, res) => {
-    const { username, password } = req.body;
+    const { name, email, username, password } = req.body;
 
     try {
-        // Verify if user already exists
+        // Verifica se o usuário já existe
         const userExists = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
         if (userExists.rows.length > 0) {
             return res.status(401).json('User already exists');
         }
 
-        // Hash password
+        // Hash da senha
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Save user to db
+        // Salva o usuário no banco de dados
         const result = await pool.query(
-            'INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING *',
-            [username, hashedPassword]
+            'INSERT INTO users (name, email, username, password_hash) VALUES ($1, $2, $3, $4) RETURNING *',
+            [name, email, username, hashedPassword]
         );
         res.status(201).json(result.rows[0]);
     } catch (error) {
@@ -77,6 +77,16 @@ router.get('/protected', authenticateToken, (req, res) => {
     res.json({
         message: 'This is a protected route. You have access!',
     });
+});
+
+//get all users
+router.get('/', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM users');
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 

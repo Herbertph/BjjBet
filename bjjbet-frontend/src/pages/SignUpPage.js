@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import styles from "./SignUpPage.module.css";
 import Header from "../components/header";
 import Footer from "../components/footer";
+import styles from "./SignUpPage.module.css";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -12,130 +11,125 @@ const SignUpPage = () => {
     password: "",
     confirmPassword: "",
   });
-  const [errors, setErrors] = useState({});
-  const navigate = useNavigate();
 
-  const validateForm = () => {
-    const errors = {};
-
-    if (!formData.name || !/^[A-Za-z\s]{5,30}$/.test(formData.name)) {
-      errors.name = "O nome deve conter entre 5 e 30 letras.";
-    }
-
-    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = "Por favor, insira um email válido.";
-    }
-
-    if (!formData.username || formData.username.length < 3 || formData.username.length > 15) {
-      errors.username = "O nome de usuário deve ter entre 3 e 15 caracteres.";
-    }
-
-    if (
-      !formData.password ||
-      formData.password.length < 9 ||
-      !/\d/.test(formData.password) ||
-      !/[A-Za-z]/.test(formData.password)
-    ) {
-      errors.password = "A senha deve conter no mínimo 9 caracteres, incluindo letras e números.";
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = "As senhas não coincidem.";
-    }
-
-    return errors;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+
+    // Validar senha e confirmação
+    if (formData.password !== formData.confirmPassword) {
+      alert("As senhas não correspondem.");
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:5001/users/register", {
+      const response = await fetch("http://localhost:5002/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          username: formData.username,
+          password: formData.password,
+        }),
       });
 
       if (response.ok) {
-        alert("Cadastro realizado com sucesso! Verifique seu email.");
-        navigate("/");
+        const data = await response.json();
+        alert(`Usuário ${data.username} registrado com sucesso!`);
+        setFormData({
+          name: "",
+          email: "",
+          username: "",
+          password: "",
+          confirmPassword: "",
+        });
       } else {
-        alert("Erro ao cadastrar. Tente novamente.");
+        const error = await response.json();
+        alert(`Erro: ${error}`);
       }
     } catch (error) {
-      console.error("Erro no cadastro:", error);
+      console.error("Erro ao registrar usuário:", error);
+      alert("Erro ao conectar ao servidor.");
     }
   };
 
   return (
     <div className={styles.container}>
       <Header />
-    <div className={styles.container}>
-      <h2>Cadastro</h2>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <div>
-          <label>Nome:</label>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          />
-          {errors.name && <p className={styles.error}>{errors.name}</p>}
+      <main className={styles.main}>
+        <div className={styles.formContainer}>
+          <h2>Cadastro</h2>
+          <form onSubmit={handleSubmit}>
+            <label>
+              Nome:
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </label>
+            <label>
+              Email:
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </label>
+            <label>
+              Nome de usuário:
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+              />
+            </label>
+            <label>
+              Senha:
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </label>
+            <label>
+              Confirmação de senha:
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+            </label>
+            <div className={styles.buttonGroup}>
+              <button type="button" onClick={() => window.history.back()}>
+                Voltar
+              </button>
+              <button type="submit">Cadastrar</button>
+            </div>
+          </form>
         </div>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          />
-          {errors.email && <p className={styles.error}>{errors.email}</p>}
-        </div>
-        <div>
-          <label>Nome de usuário:</label>
-          <input
-            type="text"
-            value={formData.username}
-            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-          />
-          {errors.username && <p className={styles.error}>{errors.username}</p>}
-        </div>
-        <div>
-          <label>Senha:</label>
-          <input
-            type="password"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          />
-          {errors.password && <p className={styles.error}>{errors.password}</p>}
-        </div>
-        <div>
-          <label>Confirmação de senha:</label>
-          <input
-            type="password"
-            value={formData.confirmPassword}
-            onChange={(e) =>
-              setFormData({ ...formData, confirmPassword: e.target.value })
-            }
-          />
-          {errors.confirmPassword && <p className={styles.error}>{errors.confirmPassword}</p>}
-        </div>
-        <div className={styles.buttons}>
-          <button type="button" onClick={() => navigate("/")}>
-            Voltar
-          </button>
-          <button type="submit">Cadastrar</button>
-        </div>
-      </form>
-    </div>
-    <Footer />
+      </main>
+      <Footer />
     </div>
   );
 };
