@@ -89,5 +89,18 @@ router.get('/', async (req, res) => {
     }
 });
 
+//// Rota para validar o token e retornar o usuário
+router.get('/validate-token', authenticateToken, async (req, res) => {
+    try {
+        const user = await pool.query('SELECT id, username, email FROM users WHERE id = $1', [req.user.id]);
+        if (user.rows.length === 0) {
+            return res.status(404).json('User not found');
+        }
+        res.status(200).json(user.rows[0]);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json('Server Error');
+    }
+});
 
 module.exports = router;
