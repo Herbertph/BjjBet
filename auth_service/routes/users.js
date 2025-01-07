@@ -56,7 +56,11 @@ router.post('/login', async (req, res) => {
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
 
-        res.status(200).json(token);
+        // Retorna o token e o nome do usuário
+        res.status(200).json({
+            token,
+            username: user.rows[0].username,
+        });
     } catch (error) {
         console.error(error.message);
         res.status(500).json('Server Error');
@@ -89,18 +93,44 @@ router.get('/', async (req, res) => {
     }
 });
 
-//// Rota para validar o token e retornar o usuário
-router.get('/validate-token', authenticateToken, async (req, res) => {
+// Retorna informações do usuário logado
+router.get('/me', authenticateToken, async (req, res) => {
     try {
-        const user = await pool.query('SELECT id, username, email FROM users WHERE id = $1', [req.user.id]);
+        const user = await pool.query('SELECT id, name, username, email FROM users WHERE id = $1', [req.user.id]);
         if (user.rows.length === 0) {
             return res.status(404).json('User not found');
         }
-        res.status(200).json(user.rows[0]);
+        res.json(user.rows[0]);
     } catch (error) {
         console.error(error.message);
         res.status(500).json('Server Error');
     }
 });
+
+// Validate Token
+router.post('/validate-token', (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ message: 'Token não fornecido' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        res.status(200).json({
+            valid: true,
+            user: decoded, // Payload do token decodificado (por exemplo, id e username)
+        });
+    } catch (err) {
+        res.status(401).json({
+            valid: false,
+            message: 'Token inválido ou expirado',
+            error: err.message,
+        });
+    }
+});
+
+
 
 module.exports = router;

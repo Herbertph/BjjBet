@@ -24,10 +24,10 @@ const LoginPage = () => {
         throw new Error("Invalid credentials");
       }
 
-      const token = await response.json();
-      localStorage.setItem("token", token);
-      localStorage.setItem("username", username);
-      navigate("/"); // Redirecionar para a página principal
+      const data = await response.json(); // Recebe o JSON retornado pela API
+      localStorage.setItem("token", data.token); // Salva o token no localStorage
+      localStorage.setItem("username", username); // Salva o nome de usuário
+      navigate("/"); // Redireciona para a página principal
     } catch (err) {
       setError("Login failed. Please check your credentials.");
     }

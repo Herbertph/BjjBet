@@ -9,6 +9,8 @@ const MainPage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate(); // Hook para navegação
+  const username = localStorage.getItem("username"); // Recuperando o nome de usuário do localStorage
+  
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -27,6 +29,34 @@ const MainPage = () => {
     fetchEvents();
   }, []);
 
+  useEffect(() => {
+    const checkTokenValidity = () => {
+      const token = localStorage.getItem('token');
+    //se nao houver um token ou o token estiver nulo/em branco, apenas continua o fluxo normal de funcionamento
+    if (!token) return;
+
+  
+      fetch('http://localhost:5002/users/validate-token', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+          }
+      })
+          .then(response => response.json())
+          .then(data => {
+              if (data.valid) {
+                  console.log('Token válido:', data.user);
+              } else {
+                  alert('Token inválido ou expirado');
+              }
+          })
+          .catch(err => console.error('Erro ao verificar token:', err));
+  };
+  
+    checkTokenValidity();
+  }, []);
+
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % events.length);
   };
@@ -43,12 +73,12 @@ const MainPage = () => {
       <main className={styles.main}>
         <div className={styles.signupContainer}>
           {/* Adicionando funcionalidade ao botão Sign Up */}
+          {!username ? (
           <button
-            className={styles.signupButton}
-            onClick={() => navigate("/signup")} // Redireciona para a página de cadastro
-          >
+            className={styles.signupButton} onClick={() => navigate("/signup")}>
             Sign Up
           </button>
+          ) : null}
         </div>
         <div className={styles.carouselContainer}>
           <h2>Next Events</h2>
@@ -99,5 +129,6 @@ const MainPage = () => {
     </div>
   );
 };
+
 
 export default MainPage;
