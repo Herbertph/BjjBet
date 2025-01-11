@@ -17,6 +17,12 @@ app.use(express.json());
 //routes
 app.use('/users', useRoutes);
 
+app.put('/users/update-email', (req, res) => {
+    console.log(req.body); // Exibe o corpo da requisição
+    res.send('Email atualizado');
+  });
+  
+
 //server
 const PORT = 5002;
 app.listen(PORT, () => {

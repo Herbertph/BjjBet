@@ -5,24 +5,35 @@ import styles from "./header.module.css";
 const Header = () => {
   const navigate = useNavigate();
   const username = localStorage.getItem("username");
-  //botao de logout
+
+  // Botão de logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     navigate("/");
-    
   };
 
   return (
-    //caso usuario esteja logado, aparece botao de login ao lado da mensagem de welcome
-    //caso contrario, aparece botao de login
     <header className={styles.header}>
-      <div className={styles.logo}>BJJ Bet</div>
+      <div className={styles.logo} onClick={() => navigate("/")}>
+        BJJ Bet
+      </div>
       {username ? (
-        <>
-        <p className={styles.welcomeMessage}>Welcome {username}</p><button className={styles.loginButton} 
-        onClick={handleLogout}> Logout</button>
-        </>
+        <div className={styles.buttonsContainer}>
+          <p className={styles.welcomeMessage}>Welcome {username}</p>
+          <button
+            className={`${styles.button}`}
+            onClick={() => navigate("/register")}
+          >
+            Profile
+          </button>
+          <button
+            className={`${styles.button} ${styles.logout}`}
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
       ) : (
         <button
           className={styles.loginButton}

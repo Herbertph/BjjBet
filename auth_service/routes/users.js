@@ -67,21 +67,6 @@ router.post('/login', async (req, res) => {
     }
 });
 
-//Test middlewares
-// Rota protegida
-router.get('/profile', authenticateToken, (req, res) => {
-    res.json({
-        message: `Hello, ${req.user.username}! This is your profile.`,
-        user: req.user, // Dados do usuário decodificados do token
-    });
-});
-
-// Outra rota protegida
-router.get('/protected', authenticateToken, (req, res) => {
-    res.json({
-        message: 'This is a protected route. You have access!',
-    });
-});
 
 //get all users
 router.get('/', async (req, res) => {
@@ -106,6 +91,21 @@ router.get('/me', authenticateToken, async (req, res) => {
         res.status(500).json('Server Error');
     }
 });
+
+// Atualiza o email do usuário logado
+router.put('/update-email', authenticateToken, async (req, res) => {
+    const { email } = req.body;
+    const userId = req.user.id;
+  
+    try {
+      await pool.query('UPDATE users SET email = $1 WHERE id = $2', [email, userId]);
+      res.status(200).json({ message: 'Email updated successfully' });
+    } catch (error) {
+      console.error('Error updating email:', error.message);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  
 
 // Validate Token
 router.post('/validate-token', (req, res) => {
